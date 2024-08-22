@@ -18,7 +18,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 #WEBSITE_URL = 'http://192.168.1.109:8000'
-WEBSITE_URL = 'http://127.0.0.1:8000'
+WEBSITE_URL = 'https://185.95.164.18:8000/'
 
 # Application definition
 
@@ -29,10 +29,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     # Third-party apps
+    'django_extensions',
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     'corsheaders',
+    "django_elasticsearch_dsl",
     # Local apps
     "users",
     "tasks",
@@ -86,12 +89,19 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'appoe',
-        'USER': 'postgres',
+        'USER': 'ozkanerozcan',
         'PASSWORD': 'ozkan123',
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://185.95.164.18:9500'
+    }
+}
+
 
 
 # Password validation
@@ -144,6 +154,8 @@ AUTH_USER_MODEL = "users.CustomUser"
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 
 REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 20,
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
@@ -177,17 +189,21 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:9200","http://192.168.1.103:9200","http://192.168.1.101:9200","http://192.168.1.119:9200",
+    #"http://localhost:9200","http://192.168.1.103:9200","http://192.168.1.101:9200","http://192.168.1.119:9200",
+    "http://185.95.164.18:9200", "http://185.95.164.18:9201", "https://185.95.164.18:9443"
 ]
 
+'''
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^http://192\.168\.1\.\d{1,3}(:[0-9]+)?$",  # Allow all IPs in the 192.168.1.x range
+    #r"^http://192\.168\.1\.\d{1,3}(:[0-9]+)?$",  # Allow all IPs in the 192.168.1.x range
+    r"^https://[a-zA-Z0-9-]+\.ngrok-free\.app$",
 ]
-
+'''
+'''
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:9200","http://192.168.1.103:9200","http://192.168.1.101:9200","http://192.168.1.119:9200",
+    #"http://localhost:9200","http://192.168.1.103:9200","http://192.168.1.101:9200","http://192.168.1.119:9200",
 ]
-
+'''
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -195,3 +211,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ozkanerozcan@gmail.com'
 EMAIL_HOST_PASSWORD = 'ktcl lzus sule ptzp'
+
+
+
+VAPID_PUBLIC_KEY = 'BNBOultYHhk1w_R620xJRqy76tDdmqF9llrkuJW2XzvWD9d6UOxLQKo08xeh2y0tNDe4L5gnn8WkQZeymfigAYU'
+VAPID_PRIVATE_KEY = 'd39gxj5pmt6FlUot5lCPDrCazAufiBe269hTih04D-g'
+VAPID_CLAIMS = {
+    "sub": "mailto:ozkanerozcan@gmail.com"
+}

@@ -2,14 +2,20 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
 
 from . import serializers
 
 User = get_user_model()
+
+class UserListView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.CustomUserSerializer
+    pagination_class = None 
 
 
 class UserRegisterationAPIView(GenericAPIView):
@@ -79,6 +85,18 @@ class UserAPIView(RetrieveUpdateAPIView):
 
 
 
+class UserEditAPIView(RetrieveUpdateAPIView):
+    """
+    Get, Update user details
+    """
+
+    queryset = User.objects.all()
+    serializer_class = serializers.UserEditSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
 class UserAvatarAPIView(RetrieveUpdateAPIView):
     """
     Get, Update user avatar
@@ -104,3 +122,13 @@ def ActivateEmail(request):
         return HttpResponse('The user is now activated. You can go ahead and log in!')
     else:
         return HttpResponse('The parameters is not valid!')
+    
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.ChangePasswordSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

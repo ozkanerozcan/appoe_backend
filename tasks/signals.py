@@ -19,8 +19,7 @@ def delete_file(sender, instance, **kwargs):
 @receiver(post_delete, sender=Post)
 def delete_folder(sender, instance, **kwargs):
     # Combine the media root with the parsed path
-    folderPath = settings.MEDIA_ROOT + "\\task\\" + str(instance.id)
-    print(os.path.isdir(folderPath))
+    folderPath = settings.MEDIA_ROOT + "/task/" + str(instance.id)
 
     if os.path.isdir(folderPath):
         shutil.rmtree(folderPath)

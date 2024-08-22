@@ -1,12 +1,27 @@
 import uuid
+from datetime import datetime
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from django_resized import ResizedImageField
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField 
+
+
 
 STATUS_CHOICES =(  
     (0, "To Do"),  
     (1, "Done"),  
     (2, "In Progress"),  
+
+) 
+
+WORKED_ON_CHOICES =(  
+    (0, "Office"),  
+    (1, "Manufacturer"),  
+    (2, "Customer"),  
+    (3, "Home"),
 
 ) 
 
@@ -64,6 +79,9 @@ class Post(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deadline_at = models.DateTimeField(default=datetime.now)
+    worked_on = models.IntegerField(choices = WORKED_ON_CHOICES, default=0) 
+
 
     list = models.ForeignKey(
         List,
@@ -72,10 +90,13 @@ class Post(models.Model):
     )
 
     class Meta:
-        ordering = ("-created_at",)
+        ordering = ("-deadline_at",)
+
 
     def __str__(self):
         return f"{self.title} by {self.created_by.username}"
+    
+
 
 
 class Comment(models.Model):
@@ -110,7 +131,8 @@ class Attachment(models.Model):
         null=True,
         on_delete=models.CASCADE,
     )
-    file = models.FileField(upload_to = get_attachment_filename) 
+    #file = models.FileField(upload_to = get_attachment_filename) 
+    file = ResizedImageField(force_format="WEBP", quality=80, upload_to = get_attachment_filename )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -119,3 +141,13 @@ class Attachment(models.Model):
 
     def __str__(self):
         return f"{self.body[:20]} by {self.created_by.username}"
+
+
+
+class Subscription(models.Model):
+    endpoint = models.TextField()
+    p256dh = models.TextField()
+    auth = models.TextField()
+
+    def __str__(self):
+        return self.endpoint

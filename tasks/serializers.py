@@ -4,6 +4,8 @@ from .models import List, Group, Comment, Post, Attachment
 
 from users.serializers import CustomUserSerializer
 
+from .documents import TaskDocument
+
 class GroupSerializer(serializers.ModelSerializer):
     created_by = CustomUserSerializer(read_only=True)
 
@@ -65,6 +67,15 @@ class PostWriteSerializer(serializers.ModelSerializer):
         model = Post
         fields = "__all__"
 
+class TaskDocumentSerializer(serializers.ModelSerializer):
+    #created_by = CustomUserSerializer(read_only=True)
+    list = ListReadSerializer(read_only=True)
+    #attachments = AttachmentReadSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ["id", "title", "body", "deadline_at", "status", "list", "worked_on"]
+        read_only = True
 
 class CommentSerializer(serializers.ModelSerializer):
     created_by = CustomUserSerializer(read_only=True)

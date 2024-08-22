@@ -10,7 +10,6 @@ from django.core.validators import RegexValidator
 
 from .managers import CustomUserManager
 
-
 def get_avatar_filename(instance, filename):
     return f"user/{instance.username}/avatar/{filename}"
     
@@ -30,6 +29,9 @@ class CustomUser(AbstractUser):
     avatar = models.ImageField(upload_to=get_avatar_filename, blank=True, null=True)
     bio = models.CharField(max_length=200, blank=True)
 
+    def full_name(self):
+        return self.get_full_name()
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
@@ -37,6 +39,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+    
 '''
     def avatar(self):
         if self.avatar:
